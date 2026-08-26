@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>fr.sorbonne_u.components.hem2025e1.equipments.toaster</title>
+</head>
+<body>
+<p><b>Toaster equipment component for HEM.</b></p>
+
+<p>
+The package defines an uncontrollable toaster component for the household energy 
+management (HEM) system. The toaster is a high-power appliance that cannot be 
+controlled by the energy manager - it is activated only by user action.
+</p>
+
+<p>
+This appliance creates unpredictable power consumption peaks that the HEM must
+handle by adjusting other controllable appliances (Fan, Refrigerator, WashingMachine).
+</p>
+
+<table>
+<caption>Package structure</caption>
+<tr><td>ToasterImplementationI</td><td>Internal implementation interface with ToasterState enum</td></tr>
+<tr><td>ToasterUserCI</td><td>User-facing component interface (CI)</td></tr>
+<tr><td>Toaster</td><td>The toaster component implementation</td></tr>
+<tr><td>ToasterTester</td><td>A component that tests the toaster through its CI</td></tr>
+<tr><td>CVMUnitTest</td><td>A CVM to execute the unit tests</td></tr>
+</table>
+
+<h3>States</h3>
+<ul>
+<li><b>OFF</b>: 0W - Lever is up, toaster idle</li>
+<li><b>TOASTING</b>: 1000W - Lever is down, heating elements active</li>
+</ul>
+
+<h3>Behavior</h3>
+<ul>
+<li><b>pushDown()</b>: Start toasting (activates heating elements)</li>
+<li><b>pullUp()</b>: Stop toasting and eject toast</li>
+<li><b>Automatic stop</b>: After 2 minutes, the toaster automatically pulls up</li>
+</ul>
+
+<p>Created on : 2025-12-26</p>
+
+</body>
+</html>

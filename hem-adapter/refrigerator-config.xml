@@ -1,0 +1,138 @@
+<control-adapter
+    xmlns="http://www.sorbonne-universite.fr/alasca/control-adapter"
+    uid="FRIDGE001"
+    offered="fr.sorbonne_u.components.hem2025e1.equipments.refrigerator.RefrigeratorUserCI">
+  <consumption nominal="80" min="0" max="150"/>
+  <required>fr.sorbonne_u.exceptions.PreconditionException</required>
+  <required>fr.sorbonne_u.components.hem2025e1.equipments.refrigerator.RefrigeratorImplementationI.RefrigeratorState</required>
+  <instance-var modifiers="protected static" type="int" name="MAX_MODE"
+                static-init="4"/>
+  <instance-var modifiers="protected static" type="double" name="MIN_TEMP"
+                static-init="0.0"/>
+  <instance-var modifiers="protected static" type="double" name="MAX_TEMP"
+                static-init="10.0"/>
+  <instance-var modifiers="protected" type="int" name="currentMode"
+                static-init="2"/>
+  <instance-var modifiers="protected" type="boolean" name="isSuspended"
+                static-init="false"/>
+  <internal modifiers="protected" type="double"
+            name="computePowerLevel">
+    <parameter type="int" name="mode"/>
+    <thrown>java.lang.Exception</thrown>
+    <body>
+      if (mode &lt;= 0 || mode &gt; MAX_MODE) {
+        throw new fr.sorbonne_u.exceptions.PreconditionException("mode &gt; 0 &amp;&amp; mode &lt;= MAX_MODE");
+      }
+      return 10.0 + (mode - 1) * 46.67;
+    </body>
+  </internal>
+  <internal modifiers="protected" type="double"
+            name="computeTargetTemperature">
+    <parameter type="int" name="mode"/>
+    <thrown>java.lang.Exception</thrown>
+    <body>
+      if (mode &lt;= 0 || mode &gt; MAX_MODE) {
+        throw new fr.sorbonne_u.exceptions.PreconditionException("mode &gt; 0 &amp;&amp; mode &lt;= MAX_MODE");
+      }
+      return MAX_TEMP - (mode - 1) * (MAX_TEMP - MIN_TEMP) / (MAX_MODE - 1);
+    </body>
+  </internal>
+  <internal modifiers="protected" type="void"
+            name="setTemperatureByMode">
+    <parameter type="int" name="mode"/>
+    <thrown>java.lang.Exception</thrown>
+    <body equipmentRef="fridge">
+      if (mode &lt;= 0 || mode &gt; MAX_MODE) {
+        throw new fr.sorbonne_u.exceptions.PreconditionException("mode &gt; 0 &amp;&amp; mode &lt;= MAX_MODE");
+      }
+      double targetTemp = computeTargetTemperature(mode);
+      fridge.setTargetTemperature(targetTemp);
+    </body>
+  </internal>
+  <maxMode><body>return MAX_MODE;</body></maxMode>
+  <upMode>
+    <body>
+      try {
+        if (currentMode &gt;= MAX_MODE) return false;
+        setTemperatureByMode(currentMode + 1);
+        currentMode++;
+      } catch(Exception e) {
+        return false;
+      }
+      return true;
+    </body>
+  </upMode>
+  <downMode>
+    <body>
+      try {
+        if (currentMode &lt;= 1) return false;
+        setTemperatureByMode(currentMode - 1);
+        currentMode--;
+      } catch(Exception e) {
+        return false;
+      }
+      return true;
+    </body>
+  </downMode>
+  <setMode>
+    <parameter name="modeIndex"/>
+    <body>
+      try {
+        if (modeIndex &lt;= 0 || modeIndex &gt; MAX_MODE) return false;
+        setTemperatureByMode(modeIndex);
+        currentMode = modeIndex;
+      } catch(Exception e) {
+        return false;
+      }
+      return true;
+    </body>
+  </setMode>
+  <currentMode>
+    <body>
+      return currentMode;
+    </body>
+  </currentMode>
+  <getModeConsumption>
+  	<parameter name="modeIndex"/>
+  	<body>
+  		return computePowerLevel(modeIndex);
+  	</body>
+  </getModeConsumption>
+  <suspended>
+    <body>
+      return isSuspended;
+    </body>
+  </suspended>
+  <suspend>
+    <body equipmentRef="fridge">
+      try {
+        fridge.suspendCompressor();
+        isSuspended = true;
+      } catch(Exception e) {
+        return false;
+      }
+      return true;
+    </body>
+  </suspend>
+  <resume>
+    <body equipmentRef="fridge">
+      try {
+        fridge.resumeCompressor();
+        setTemperatureByMode(currentMode);
+        isSuspended = false;
+      } catch(Exception e) {
+        return false;
+      }
+      return true;
+    </body>
+  </resume>
+  <emergency>
+    <body equipmentRef="fridge">
+      double currentTemp = fridge.getCurrentTemperature();
+      double targetTemp = fridge.getTargetTemperature();
+      double delta = java.lang.Math.abs(currentTemp - targetTemp);
+      if (delta &gt; 3.0) return 1.0;
+      return delta / 3.0;
+    </body>
+  </emergency>
+</control-adapter>

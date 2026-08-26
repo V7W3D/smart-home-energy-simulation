@@ -1,0 +1,124 @@
+<control-adapter
+    xmlns="http://www.sorbonne-universite.fr/alasca/control-adapter"
+    uid="FAN_SALON"
+    offered="fr.sorbonne_u.components.hem2025e1.equipments.fan.FanUserCI">
+  <consumption nominal="100" min="0" max="150"/>
+  <required>fr.sorbonne_u.exceptions.PreconditionException</required>
+  <required>fr.sorbonne_u.components.hem2025e1.equipments.fan.FanImplementationI.FanState</required>
+  <instance-var modifiers="protected static" type="int" name="MAX_MODE"
+                static-init="3"/>
+  <instance-var modifiers="protected" type="int" name="currentMode"
+                static-init="MAX_MODE"/>
+  <instance-var modifiers="protected" type="boolean" name="isSuspended"
+                static-init="false"/>
+  <internal modifiers="protected" type="double"
+            name="computePowerLevel">
+    <parameter type="int" name="mode"/>
+    <thrown>java.lang.Exception</thrown>
+    <body>
+      if (mode &lt;= 0 || mode &gt; MAX_MODE) {
+        throw new fr.sorbonne_u.exceptions.PreconditionException("mode &gt; 0 &amp;&amp; mode &lt;= MAX_MODE");
+      }
+      if (mode == 1) return 50.0;
+      if (mode == 2) return 100.0;
+      return 150.0;
+    </body>
+  </internal>
+  <internal modifiers="protected" type="void"
+            name="setSpeedByMode">
+    <parameter type="int" name="mode"/>
+    <thrown>java.lang.Exception</thrown>
+    <body equipmentRef="fan">
+      if (mode &lt;= 0 || mode &gt; MAX_MODE) {
+        throw new fr.sorbonne_u.exceptions.PreconditionException("mode &gt; 0 &amp;&amp; mode &lt;= MAX_MODE");
+      }
+      if (mode == 1) fan.setLow();
+      else if (mode == 2) fan.setMedium();
+      else fan.setHigh();
+    </body>
+  </internal>
+  <maxMode><body>return MAX_MODE;</body></maxMode>
+  <upMode>
+    <body>
+      try {
+        if (currentMode &gt;= MAX_MODE) return false;
+        setSpeedByMode(currentMode + 1);
+        currentMode++;
+      } catch(Exception e) {
+        return false;
+      }
+      return true;
+    </body>
+  </upMode>
+  <downMode>
+    <body>
+      try {
+        if (currentMode &lt;= 1) return false;
+        setSpeedByMode(currentMode - 1);
+        currentMode--;
+      } catch(Exception e) {
+        return false;
+      }
+      return true;
+    </body>
+  </downMode>
+  <setMode>
+    <parameter name="modeIndex"/>
+    <body>
+      try {
+        if (modeIndex &lt;= 0 || modeIndex &gt; MAX_MODE) return false;
+        setSpeedByMode(modeIndex);
+        currentMode = modeIndex;
+      } catch(Exception e) {
+        return false;
+      }
+      return true;
+    </body>
+  </setMode>
+  <currentMode>
+    <body>
+      return currentMode;
+    </body>
+  </currentMode>
+  <getModeConsumption>
+  	<parameter name="modeIndex"/>
+  	<body>
+  		return computePowerLevel(modeIndex);
+  	</body>
+  </getModeConsumption>
+  <suspended>
+    <body>
+      return isSuspended;
+    </body>
+  </suspended>
+  <suspend>
+    <body equipmentRef="fan">
+      try {
+        fan.turnOff();
+        isSuspended = true;
+      } catch(Exception e) {
+        return false;
+      }
+      return true;
+    </body>
+  </suspend>
+  <resume>
+    <body equipmentRef="fan">
+      try {
+        if (fan.getState() == fr.sorbonne_u.components.hem2025e1.equipments.fan.FanImplementationI.FanState.OFF) {
+          fan.turnOn();
+        }
+        setSpeedByMode(currentMode);
+        isSuspended = false;
+      } catch(Exception e) {
+        return false;
+      }
+      return true;
+    </body>
+  </resume>
+  <emergency>
+    <body>
+      return 0.5;
+    </body>
+  </emergency>
+</control-adapter>

@@ -1,0 +1,26 @@
+# Java build outputs
+*.class
+bin/
+out/
+build/
+target/
+
+# IDE and build-tool metadata
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.metals/
+
+# Runtime and tool logs
+*.log
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# Local environment files
+.env
+.env.*
+!.env.example

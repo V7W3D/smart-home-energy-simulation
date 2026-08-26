@@ -1,0 +1,14 @@
+{
+    "java.project.sourcePaths": [
+        "hem-2025-base",
+        "hem-2025-e1",
+        "hem-2025-e2",
+        "hem-2025-e3"
+    ],
+    "java.project.referencedLibraries": [
+        "libs/*.jar"
+    ],
+    "files.watcherExclude": {
+        "**/target/**": true
+    }
+}
