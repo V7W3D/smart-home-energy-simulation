@@ -128,6 +128,3 @@ java -cp "out:libs/*" fr.sorbonne_u.components.hem2025e2.RunFunctionalTestGlobal
 
 The Java source files state that the project is distributed under the CeCILL-C license. For the exact legal terms, refer to the source headers and any project-level license information available in the repository.
 
-## Notes
-
-This project is not a typical application with a single main program; it is a research or academic simulation codebase built around home-energy component simulation, model orchestration, and integration testing. The best way to explore it is to start with the Javadoc in `doc/` and the `CVMIntegrationTest` and simulation classes under the e1/e2/e3 modules.
