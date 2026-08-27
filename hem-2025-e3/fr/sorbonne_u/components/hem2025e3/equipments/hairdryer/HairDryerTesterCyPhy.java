@@ -50,7 +50,6 @@ import fr.sorbonne_u.exceptions.AssertionChecking;
 import fr.sorbonne_u.exceptions.InvariantException;
 import fr.sorbonne_u.exceptions.PreconditionException;
 import fr.sorbonne_u.utils.aclocks.ClocksServer;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import fr.sorbonne_u.components.hem2025e1.equipments.hairdryer.HairDryerUserCI;
 
 // -----------------------------------------------------------------------------
@@ -833,8 +832,9 @@ extends		AbstractCyPhyComponent
 		try {
 			this.hdop.turnOff();
 		} catch (Throwable e) {
-			assertTrue(false);
+			this.statistics.incorrectResult();
 		}
+		this.statistics.updateStatistics();
 	}
 
 	/**
